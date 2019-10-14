@@ -138,7 +138,7 @@ class App extends React.Component {
       // if (socketConnected)
       //   exampleSocket.send(getDMXMessage(ctxOut).join(','))
 
-      fetch("/set_dmx", {
+      fetch("localhost:9090/set_dmx", {
         body: "u=1&d=" + getDMXMessage(this.ctxOut).join(','),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
