@@ -35,9 +35,3 @@
 img {
   display: none;
 }
-
-.row {
-  display: flex;
-  padding: 15px;
-  justify-content: space-between;
-}

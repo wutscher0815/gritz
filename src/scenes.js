@@ -1,6 +1,6 @@
 import knots from './knotmatrix'
 
-let [width, height, cols, rows, elementLength] = [560, 380, 28, 19, 9];
+let [width, height, cols, rows, elementLength] = [280, 190, 28, 19, 9];
 
 export function setDimensions(widthin, heightin, rowsin, colsin, elementLengthin) {
     width = widthin;
@@ -10,32 +10,72 @@ export function setDimensions(widthin, heightin, rowsin, colsin, elementLengthin
     elementLength = elementLengthin;
 }
 
-export async function rotatingImage(ctx, img, hue, saturation, speed) {
+export async function rotatingImage(ctx, img, filename) {
+    img.src = filename
 
-    let frame = 0;
     ctx.fillStyle = '#000'
     ctx.fillRect(0, 0, width, height)
-    const update = state => {
+    const update = (state, frame) => {
         ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${state.hue/255*360}deg)`;
         ctx.resetTransform();
         ctx.translate((width / 2), (height / 2))
-        ctx.rotate(frame * Math.PI / 180);
+        ctx.rotate(frame * Math.PI / 180 * state.speed / 96);
         ctx.translate(-(width / 2), -(height / 2))
-        ctx.drawImage(img, -width * 0.2, -height * 0.2, width * 1.4, height * 1.4)
+        ctx.drawImage(img, -width * 0.25, -height * 0.25, width * 1.5, height * 1.5)
 
-        frame++;
     }
     const promise = new Promise(resolve => {
-        debugger
         if (img.loadeded) {
-            ctx.drawImage(img, -width * 0.2, -height * 0.2, width * 1.4, height * 1.4)
+            ctx.drawImage(img, -width * 0.25, -height * 0.25, width * 1.5, height * 1.5)
             resolve(update);
         } else {
             img.onload = () => {
-                ctx.drawImage(img, -width * 0.2, -height * 0.2, width * 1.4, height * 1.4)
+                ctx.drawImage(img, -width * 0.25, -height * 0.25, width * 1.5, height * 1.5)
                 resolve(update);
             }
         }
+    });
+    return promise;
+}
+
+export async function pulsateBackground(ctx, color, showFrame) {
+
+
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, width, height)
+    const promise = new Promise(resolve => {
+        const update = (state, frame) => {
+
+            const brightness = 1 - ((state.v1 / 30 + (1 + Math.sin(frame * state.speed / 128 / 60 * 2 * Math.PI)) / 2) * (1 - state.v1 / 30))
+            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${state.hue/16*frame}deg) brightness(${brightness})`;
+            fillBackground(ctx, color)
+            if (showFrame) {
+                ctx.fillStyle = '#000'
+                ctx.fillRect(width / cols, height / rows, width - 2 * width / cols, height - 2 * height / rows, )
+            }
+        }
+        resolve(update)
+    });
+    return promise;
+}
+
+
+export async function blinkBackground(ctx, color, showFrame) {
+
+
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, width, height)
+    const promise = new Promise(resolve => {
+        const update = (state, frame) => {
+            const mod = (frame * state.speed / 128) % (state.v1 * 5 + state.v2 * 5)
+            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${(state.hue/16*frame)}deg)`;
+            fillBackground(ctx, mod > state.v1 * 5 ? '#000' : color)
+            if (showFrame) {
+                ctx.fillStyle = '#000'
+                ctx.fillRect(width / cols, height / rows, width - 2 * width / cols, height - 2 * height / rows, )
+            }
+        }
+        resolve(update)
     });
     return promise;
 }
@@ -44,22 +84,20 @@ export async function movingblock(ctx, count, distance, hue, color, delay, hueof
 
     const fps = 60;
 
-    let frame = 0;
+
     ctx.fillStyle = '#000'
 
     console.log(LightenDarkenColor('#f0f', -1))
     ctx.fillRect(0, 0, width, height)
-    const dColors = Array.from({
-        length: delay
-    }).map((e, i) => LightenDarkenColor(color, delay && -i * 255 / delay))
     const promise = new Promise(resolve => {
-        const update = state => {
+        const update = (state, frame) => {
+            const dColors = Array.from({
+                length: state.v3
+            }).map((e, i) => LightenDarkenColor(color, state.v3 && -i * 255 / state.v3))
             fillBackground(ctx, '#000');
-            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${hue+(state.hue/16*frame)}deg)`;
-            drawhorizontalmovingblockframe(delay, count, frame, distance, fps, ctx, state, dColors, hueoffset);
+            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${(state.hue/16*frame)}deg)`;
+            drawhorizontalmovingblockframe(state.v3, state.v1, frame, state.v2, fps, ctx, state, dColors, hueoffset);
 
-
-            frame++;
         }
         resolve(update);
 
@@ -72,22 +110,21 @@ export async function movingblockvertical(ctx, count, distance, hue, color, dela
 
     const fps = 60;
 
-    let frame = 0;
+
     ctx.fillStyle = '#000'
 
     console.log(LightenDarkenColor('#f0f', -1))
     ctx.fillRect(0, 0, width, height)
-    const dColors = Array.from({
-        length: delay
-    }).map((e, i) => LightenDarkenColor(color, delay && -i * 255 / delay))
     const promise = new Promise(resolve => {
-        const update = state => {
+        const update = (state, frame) => {
+            const dColors = Array.from({
+                length: state.v3
+            }).map((e, i) => LightenDarkenColor(color, state.v3 && -i * 255 / state.v3))
             fillBackground(ctx, '#000');
-            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${hue+(state.hue/16*frame)}deg)`;
-            drawVerticalmovingBlockFrame(delay, count, frame, distance, fps, ctx, state, dColors, hueoffset);
+            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${(state.hue/16*frame)}deg)`;
+            drawVerticalmovingBlockFrame(state.v3, state.v1, frame, state.v2, fps, ctx, state, dColors, hueoffset);
 
 
-            frame++;
         }
         resolve(update);
 
@@ -99,23 +136,22 @@ export async function movingblockcross(ctx, count, distance, hue, color, delay, 
 
     const fps = 60;
 
-    let frame = 0;
     ctx.fillStyle = '#000'
 
     console.log(LightenDarkenColor('#f0f', -1))
     ctx.fillRect(0, 0, width, height)
     const promise = new Promise(resolve => {
-        const update = state => {
+        const update = (state, frame) => {
+
             const dColors = Array.from({
                 length: state.v3
             }).map((e, i) => LightenDarkenColor(color, state.v3 && -i * 255 / state.v3))
             fillBackground(ctx, '#000');
-            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${hue+(state.hue/16*frame)}deg)`;
+            ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${(state.hue/16*frame)}deg)`;
             drawVerticalmovingBlockFrame(state.v3, state.v1, frame, state.v2, fps, ctx, state, dColors, hueoffset);
             drawhorizontalmovingblockframe(Math.floor(state.v3 * 0.66), Math.floor(state.v1 * 0.7), frame, state.v2, fps, ctx, state, dColors, hueoffset);
 
 
-            frame++;
         }
         resolve(update);
 
@@ -123,28 +159,24 @@ export async function movingblockcross(ctx, count, distance, hue, color, delay, 
     return promise;
 }
 
-export async function blocks(ctx, count, distance, hue, color, delay, hueoffset) {
+export async function blocks(ctx, hue, color) {
 
-    const fps = 60;
+    ctx.fillStyle = '#000000'
 
-    let frame = 0;
-    ctx.fillStyle = '#000'
-
-    console.log(LightenDarkenColor('#f0f', -1))
+    console.log(LightenDarkenColor('#ff00ff', -1))
     ctx.fillRect(0, 0, width, height)
-    const dColors = Array.from({
-        length: delay
-    }).map((e, i) => LightenDarkenColor(color, delay && -i * 255 / delay))
+
     const promise = new Promise(resolve => {
-        const update = state => {
-            fillBackground(ctx, '#000');
+        const update = (state, frame) => {
+
+            fillBackground(ctx, '#000000');
             ctx.filter = `saturate(${state.saturation/255}) hue-rotate(${hue+(state.hue/16*frame)}deg)`;
             const square = [Math.floor(frame * (state.speed / 1024) + 4) % 3, Math.floor(frame * (state.speed / 1024) / 3 + 4) % 2]
-            fillSquare(ctx, square[0], square[1], '#ffff00');
-            fillSquare(ctx, (square[0] + 1) % 3, (square[1] + 1) % 2, '#ffff00');
-            // fillSquare(ctx, (square[0] + 2) % 3, (square[1] + 2) % 2, '#ffff00');
 
-            frame++;
+            let i = state.v1;
+            while (i--) {
+                fillSquare(ctx, (square[0] + i) % 3, (square[1] + i) % 2, color);
+            }
         }
         resolve(update);
 
@@ -159,7 +191,7 @@ function drawhorizontalmovingblockframe(delay, count, frame, distance, fps, ctx,
     while (d >= 0) {
         for (let i = 0; i < count; i++) {
             if ((frame + i * distance) % fps <= frame + i * distance)
-                fillPixel(ctx, (((frame * state.speed / 64 + i * distance)) % fps - d) / (fps / 3), Math.floor(((frame * state.speed / 64 + i * distance) - d) / fps) % 3, changeHue(dColors[d], hueOffset * i));
+                fillPixel(ctx, (((frame * state.speed / 128 + i * distance)) % fps - d) / (fps / 3), Math.floor(((frame * state.speed / 128 + i * distance) - d) / fps) % 3, changeHue(dColors[d], hueOffset * i));
         }
         d--;
     }
@@ -170,7 +202,7 @@ function drawVerticalmovingBlockFrame(delay, count, frame, distance, fps, ctx, s
     while (d >= 0) {
         for (let i = 0; i < count; i++) {
             if ((frame + i * distance) % fps <= frame + i * distance)
-                fillPixel(ctx, (Math.floor(((frame * state.speed / 64 + i * distance) - d) / fps) % 4), ((frame * state.speed / 64 + i * distance) % fps - d) / (fps / 4), changeHue(dColors[d], hueOffset * i));
+                fillPixel(ctx, (Math.floor(((frame * state.speed / 128 + i * distance) - d) / fps) % 4), ((frame * state.speed / 128 + i * distance) % fps - d) / (fps / 4), changeHue(dColors[d], hueOffset * i));
         }
         d--;
     }
