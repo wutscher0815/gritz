@@ -144,7 +144,7 @@ class App extends React.Component {
       this.ctxOut.fillRect(19, 10, 8, 8);
 
 
-      fetch("/set_dmx", {
+      fetch("/ola/set_dmx", {
         body: "u=1&d=" + getDMXMessage(this.ctxOut).join(','),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
