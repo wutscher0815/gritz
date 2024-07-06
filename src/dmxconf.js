@@ -1,5 +1,5 @@
 const rows = [
-    [null, 1, 4, 7, 10, 13, 16, 19, 22, null, 25, 28, 31, 34, 37, 40, 43, 46, null, 49, 52, 55, 58, 61, 64, 67, 70, null],
+    [null, null, null,   1,    5,    9,   13, null, null, null,null, null, null, null, null, null, null, null, null,null, null,   25,   29,   33,   37, null, null, null],
     [217, null, null, null, null, null, null, null, null, 265, null, null, null, null, null, null, null, null, 313, null, null, null, null, null, null, null, null, 362],
     [220, null, null, null, null, null, null, null, null, 268, null, null, null, null, null, null, null, null, 316, null, null, null, null, null, null, null, null, 365],
     [223, null, null, null, null, null, null, null, null, 271, null, null, null, null, null, null, null, null, 319, null, null, null, null, null, null, null, null, 368],
