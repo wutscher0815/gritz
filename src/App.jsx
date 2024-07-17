@@ -7,7 +7,7 @@ import conf from './dmxconf.js';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 
-import { rotatingImage, pulsateBackground, movingblock, blocks, movingblockvertical, movingblockcross, blinkBackground } from './scenes';
+import { rotatingImage, movingstripevertical, pulsateBackground, verticalstripes, movingblock, blocks, movingblockvertical, movingblockcross, blinkBackground, movingstripehorizontal } from './scenes';
 
 function getDMXMessage(context) {
 
@@ -208,6 +208,65 @@ class App extends React.Component {
     }
     this.startAnimation();
 
+  }
+
+
+  async countryRoadsCalm(setstate) {
+    if (setstate) { this.setState({ "speed": 80, "hue": 19, "saturation": 255, "v1": 21 }) }
+    return rotatingImage(this.ctx, this.img, "windwheel.png");
+  }
+
+
+  async countryRoadsFlash(setstate) {
+    if (setstate) { this.setState({ "speed": 150, "hue": 0, "saturation": 255, "v1": 3, "v2": 180 }) }
+    return blinkBackground(this.ctx, '#ff0000')
+  }
+
+  async countryRoadsPunk(setstate) {
+    if (setstate) { this.setState({ v1: 2, v2: 2, v3: 12, hue: 0, speed: 255, saturation: 255 }) }
+    return blinkBackground(this.ctx, '#ff0000')
+  }
+
+  async believerCalm(setstate) {
+    if (setstate) { this.setState({ "speed": 60, "hue": 0, "saturation": 255, "v1": 21, "v2": 12, v3: 1 }) }
+    return movingstripevertical(this.ctx, 15, 0, 0, '#0000ff', 0.3, true)
+  };
+
+  async believerChorus(setstate) {
+    if (setstate) { this.setState({ "speed": 220, "hue": 0, "saturation": 255, "v1": 21, "v2": 12, v3: 4 }) }
+    return movingstripevertical(this.ctx, 15, 0, 0, '#0000ff', 0.3, true)
+  }
+
+  async believerFinale(setstate) {
+    if (setstate) { this.setState({ "speed": 125, "hue": 0, "saturation": 255, "v1": 21, "v2": 12, v3: 4 }) }
+    return blinkBackground(this.ctx, '#0000ff', true);
+  }
+
+  async umbrella(setstate) {
+    if (setstate) { this.setState({ "speed": 125, "hue": 0, "saturation": 255, "v1": 21, "v2": 12, v3: 4 }) }
+    return this.mia(setstate)
+  }
+
+  rollingChorus(setstate) {
+    if (setstate) { this.setState({ v1: 14, v2: 18, v3: 14, hue: 140, speed: 180, saturation: 255 }) }
+    return movingblockvertical(this.ctx, 12, 19, this.state.hue, '#ff0000', 12, 142);
+  }
+
+  rollingCalm(setstate) {
+    if (setstate) { this.setState({ v1: 2, v2: 18, v3: 12, hue: 0, speed: 45, saturation: 255 }) }
+    return blocks(this.ctx, this.state.hue, '#ff0000');
+  }
+
+
+
+  async stripesvertivcal(setstate) {
+    if (setstate) { this.setState({ "speed": 60, "hue": 0, "saturation": 255, "v1": 21 }) }
+    return movingstripevertical(this.ctx, 15, 0, 0, '#0000ff', 0.3, true)
+  }
+
+  async stripeshorizontal(setstate) {
+    if (setstate) { this.setState({ "speed": 60, "hue": 0, "saturation": 255, "v1": 21 }) }
+    return movingstripehorizontal(this.ctx, 15, 0, 0, '#0000ff', 0.3, true)
   }
 
   async psychoKillerCalm(setstate) {
@@ -415,32 +474,63 @@ class App extends React.Component {
 
         </div>
       </div>
+
       <div className="row">
-        <h3 className="col-12">1.psycho Killer</h3>
-        <p classNmae="col">3 Strophen, bridge nach 2.strophe bleibt im chorusmodus, Finale nach 3. refrain, Keine pause zwischen dem nächsten lied</p>
+        <h3 className="col-12">1.Country roads</h3>
+        <p classNmae="col">2 Strophen, bridge nach 2.strophe bleibt im chorusmodus, alles in Calm reset  Schalala flash Flash Finale nach 3. refrain, Keine pause zwischen dem nächsten lied</p>
       </div>
       <div className="row">
         {
-          ['psychoKillerCalm', 'psychoKillerChorus', 'psychoKillerFinale'].map(scene => this.button(scene))
+          ['countryRoadsCalm', 'reset', 'countryRoadsFlash', 'countryRoadsPunk', 'countryRoadsCalm', 'reset'].map(scene => this.button(scene))
         }
       </div>
 
       <div className="row">
-        <h3 className="col-12">5. Bitte bitte</h3>
-        <p classNmae="col">Nach Song 2 (Woohooo). Flash am beat,(im notfall Finale), lauter Teil, im finale speedregler mit intensität nach oben</p>
+        <h3 className="col-12">2. believer</h3>
+        <p classNmae="col">3 Strophen, reset im brak (vor 'Pain, you make me a believer</p>
       </div>
       <div className="row">
         {
-          ['kreiskyLaut', 'kreiskyFlash', 'kreiskyFinale',].map(scene => this.button(scene))
+          ['believerCalm', 'reset', 'believerChorus', 'believerFinale', 'reset'].map(scene => this.button(scene))
+        }
+      </div>
+
+
+      <div className="row">
+        <h3 className="col-12">3. Umbrella</h3>
+      </div>
+      <div className="row">
+        {
+          ['umbrella', 'reset'].map(scene => this.button(scene))
+        }
+      </div>
+
+
+
+      <div className="row">
+        <h3 className="col-12">3. Rolling in the Deep</h3>
+      </div>
+      <div className="row">
+        {
+          ['rollingCalm', 'rollingChorus', 'reset'].map(scene => this.button(scene))
+        }
+      </div>
+
+
+      <div className="row">
+        <h3 className="col-12">4. Rolling in the Deep</h3>
+      </div>
+      <div className="row">
+        {
+          ['rollingCalm', 'rollingChorus', 'reset'].map(scene => this.button(scene))
         }
       </div>
       <div className="row">
-        <h3 className="col-12">6. Helter Skelter</h3>
-        <p classNmae="col">Reset bei intro und full stop nach 2.Refrain ("Helter Skelter - Yeah"), HelterSkelter, wenn alle spielen</p>
+        <h3 className="col-12">5 Kosola</h3>
       </div>
       <div className="row">
         {
-          ['helterSkelter', 'reset'].map(scene => this.button(scene))
+          ['kosola', 'rollingChorus', 'reset'].map(scene => this.button(scene))
         }
       </div>
 
@@ -554,7 +644,7 @@ class App extends React.Component {
       </div>
 
       {
-        ['bloxhori', 'bloxvert', 'bloxcross', 'rotateImg', 'squares', 'psychoKillerCalm', 'psychoKillerChorus', 'reset'].map(scene => this.button(scene))
+        ['bloxhori', 'bloxvert', 'stripeshorizontal', 'stripesvertivcal', 'bloxcross', 'rotateImg', 'squares', 'psychoKillerCalm', 'psychoKillerChorus', 'reset'].map(scene => this.button(scene))
       }
     </div>
     );
